@@ -19,12 +19,10 @@ def extract_text_from_pdf(file):
 
 # Function to rank resumes based on job description
 def rank_resumes(job_description, resumes):
-    # Combine job description with resumes
     documents = [job_description] + resumes
     vectorizer = TfidfVectorizer().fit_transform(documents)
     vectors = vectorizer.toarray()
     
-    # Calculate cosine similarity
     job_description_vector = vectors[0]
     resume_vectors = vectors[1:]
     cosine_similarities = cosine_similarity([job_description_vector], resume_vectors).flatten()
@@ -34,7 +32,7 @@ def rank_resumes(job_description, resumes):
 # Function to summarize text using the new OpenAI API
 def summarize_text(text):
     try:
-        response = openai.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",  # or gpt-4 if you have access
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
@@ -43,7 +41,7 @@ def summarize_text(text):
             max_tokens=150,
             temperature=0.7,
         )
-        summary = response['choices'][0]['message']['content'].strip()
+        summary = response['choices'][0]['message']['content'].strip()  # Fixed line
         return summary
     except Exception as e:
         return f"Error in summarization: {e}"
@@ -87,7 +85,7 @@ if uploaded_files and job_description:
     for file in uploaded_files:
         text = extract_text_from_pdf(file)
         resumes.append(text)
-        summary = summarize_text(text)
+        summary = summarize_text(text)  # Summarize the resume text
         summaries.append(summary)
     
     # Rank resumes
